@@ -1,0 +1,108 @@
+Sender: LSF System <lsfadmin@polus-c4-ib.bmc.hpc.cs.msu.ru>
+Subject: Job 5273: <# this file was automaticly created by mpisubmit.pl script for edu-cmc-sqi16-08 #;source /polusfs/setenv/setup.SMPI;#BSUB -n 1;#BSUB -W 00:15;#BSUB -o polus_N_100000.txt;#BSUB -e main.%J.err;OMP_NUM_THREADS=1 mpiexec main 50 20 100 1e-6 50 1 1> in cluster <MSUCluster> Done
+
+Job <# this file was automaticly created by mpisubmit.pl script for edu-cmc-sqi16-08 #;source /polusfs/setenv/setup.SMPI;#BSUB -n 1;#BSUB -W 00:15;#BSUB -o polus_N_100000.txt;#BSUB -e main.%J.err;OMP_NUM_THREADS=1 mpiexec main 50 20 100 1e-6 50 1 1> was submitted from host <polus-ib.bmc.hpc.cs.msu.ru> by user <edu-cmc-sqi16-08> in cluster <MSUCluster> at Mon Oct 15 18:25:05 2018
+Job was executed on host(s) <polus-c4-ib.bmc.hpc.cs.msu.ru>, in queue <short>, as user <edu-cmc-sqi16-08> in cluster <MSUCluster> at Mon Oct 15 18:25:05 2018
+</home_edu/edu-cmc-sqi16/edu-cmc-sqi16-08> was used as the home directory.
+</home_edu/edu-cmc-sqi16/edu-cmc-sqi16-08/solver> was used as the working directory.
+Started at Mon Oct 15 18:25:05 2018
+Terminated at Mon Oct 15 18:25:13 2018
+Results reported at Mon Oct 15 18:25:13 2018
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+# this file was automaticly created by mpisubmit.pl script for edu-cmc-sqi16-08 #
+source /polusfs/setenv/setup.SMPI
+#BSUB -n 1
+#BSUB -W 00:15
+#BSUB -o polus_N_100000.txt
+#BSUB -e main.%J.err
+OMP_NUM_THREADS=1 mpiexec main 50 20 100 1e-6 50 1 1
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   418.93 sec.
+    Max Memory :                                 47 MB
+    Average Memory :                             1.00 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              5
+    Max Threads :                                89
+    Run time :                                   10 sec.
+    Turnaround time :                            8 sec.
+
+The output (if any) follows:
+
+Testing BiCGSTAB solver for a 3D grid domain
+nx=50 ny=20 nz=100 tol=0.000001 maxit=50 nt=1 qa=1
+
+N   = 100000 (Nx=50, Ny=20, Nz=100
+Aij = sin(i+j+1), i != j
+Aii = 1.1*sum(fabs(Aij))
+Bi  = sin(i+1)
+tol = 1.0000000000e-06
+
+testing sequential ops:
+Sequential ops timing: 
+dot	time= 0.000s GFLOPS=  4.30
+axpby	time= 0.001s GFLOPS=  5.71
+spmv	time= 0.010s GFLOPS=  1.32
+testing parallel ops for ntr=2:
+dot	time= 0.000s GFLOPS=  7.97 Speedup=  1.85X
+axpby	time= 0.000s GFLOPS=  7.99 Speedup=  1.40X
+spmv	time= 0.005s GFLOPS=  2.64 Speedup=  2.01X
+testing parallel ops for ntr=4:
+dot	time= 0.000s GFLOPS= 18.14 Speedup=  4.21X
+axpby	time= 0.000s GFLOPS= 13.20 Speedup=  2.31X
+spmv	time= 0.002s GFLOPS=  5.22 Speedup=  3.97X
+testing parallel ops for ntr=8:
+dot	time= 0.000s GFLOPS= 28.56 Speedup=  6.63X
+axpby	time= 0.000s GFLOPS= 11.41 Speedup=  2.00X
+spmv	time= 0.001s GFLOPS= 10.15 Speedup=  7.71X
+testing parallel ops for ntr=16:
+dot	time= 0.000s GFLOPS= 29.11 Speedup=  6.76X
+axpby	time= 0.000s GFLOPS=  6.76 Speedup=  1.18X
+spmv	time= 0.001s GFLOPS= 12.71 Speedup=  9.65X
+testing parallel ops for ntr=32:
+dot	time= 0.000s GFLOPS= 26.77 Speedup=  6.22X
+axpby	time= 0.001s GFLOPS=  3.41 Speedup=  0.60X
+spmv	time= 0.001s GFLOPS= 13.69 Speedup= 10.40X
+testing parallel ops for ntr=64:
+dot	time= 0.000s GFLOPS= 20.98 Speedup=  4.87X
+axpby	time= 0.002s GFLOPS=  1.26 Speedup=  0.22X
+spmv	time= 0.001s GFLOPS= 12.18 Speedup=  9.25X
+testing parallel ops for ntr=128:
+dot	time= 0.000s GFLOPS= 17.96 Speedup=  4.17X
+axpby	time= 0.002s GFLOPS=  1.61 Speedup=  0.28X
+spmv	time= 0.001s GFLOPS= 14.78 Speedup= 11.23X
+
+testing sequential solver:
+Sequential solver timing: 
+solver	time= 3.121s GFLOPS=  0.30
+testing parallel solver for ntr=2:
+solver	time= 1.581s GFLOPS=  0.59 Speedup=  1.97X
+testing parallel solver for ntr=4:
+solver	time= 0.852s GFLOPS=  1.10 Speedup=  3.66X
+testing parallel solver for ntr=8:
+solver	time= 0.483s GFLOPS=  1.94 Speedup=  6.46X
+testing parallel solver for ntr=16:
+solver	time= 0.291s GFLOPS=  3.22 Speedup= 10.72X
+testing parallel solver for ntr=32:
+solver	time= 0.198s GFLOPS=  4.73 Speedup= 15.73X
+testing parallel solver for ntr=64:
+solver	time= 0.146s GFLOPS=  6.44 Speedup= 21.41X
+testing parallel solver for ntr=128:
+solver	time= 0.139s GFLOPS=  6.76 Speedup= 22.49X
+
+
+PS:
+
+Read file <main.5273.err> for stderr output of this job.
+
