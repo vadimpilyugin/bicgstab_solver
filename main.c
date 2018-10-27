@@ -21,6 +21,8 @@
 #define TEST_SPMV 1
 #define TEST_DOT 2
 
+const char *format = "%s\ttime=%6.3fs GFLOPS=%6.2f Speedup=%6.2fX NTR=%d\n";
+
 void usage() {
   fprintf(stderr, "Usage: main [NX] [NY] [NZ] [TOL] [MAXIT] [THREADS] [QA]\n");
   exit(ARG_ERROR);
@@ -50,8 +52,7 @@ double test_op(int op_num, int n_tests, Vector XX, Vector YY, CSRMatrix A) {
   bin = sum;
   return op_time;
 }
-
-void test_basic_ops(int max_values[], int N) {
+void test_basic_ops(int max_values[], long long N) {
   Vector XX = make_vector(N);
   Vector YY = make_vector(N);
   for (int i = 0; i < N; i++) {
@@ -60,33 +61,40 @@ void test_basic_ops(int max_values[], int N) {
   }
   CSRMatrix A = csr_matrix(max_values);
   int non_zero = A.IA[A.N];
-  int n_tests = 20;
+  long long n_tests_dot = 300;
+  long long n_tests_axpby = 200;
+  long long n_tests_spmv = 20;
+
+  int ntr = 1;
 
   // Testing basic operations 
-  const double axpby_gflop = n_tests * n_tests * 3*N * 1E-9; // a * x[i] + b * y[i] 
-  const double spmv_gflop = n_tests * n_tests * (2*non_zero-A.N) * 1E-9; // a[i,j] * b[j]
-  const double dot_gflop = n_tests * n_tests * (2*N-1) * 1E-9; // a[i]*b[i]
+  const double dot_gflop = n_tests_dot * n_tests_dot * (2*N-1) * 1E-9; // a[i]*b[i]
+  const double axpby_gflop = n_tests_axpby * n_tests_axpby * 3*N * 1E-9; // a * x[i] + b * y[i] 
+  const double spmv_gflop = n_tests_spmv * n_tests_spmv * (2*non_zero-A.N) * 1E-9; // a[i,j] * b[j]
+  printf("DOT_GFLOP=%13.3f\n", dot_gflop);
+  printf("AXPBY_GFLOP=%13.3f\n", axpby_gflop);
+  printf("SPMV_GFLOP=%13.3f\n", spmv_gflop);
   printf("testing sequential ops:\n"); 
-  omp_set_num_threads(1);
-  double axpby_time = test_op(TEST_AXPBY, n_tests, XX, YY, A);
-  double spmv_time = test_op(TEST_SPMV, n_tests, XX, YY, A);
-  double dot_time = test_op(TEST_DOT, n_tests, XX, YY, A);
+  omp_set_num_threads(ntr);
+  double dot_time = test_op(TEST_DOT, n_tests_dot, XX, YY, A);
+  double axpby_time = test_op(TEST_AXPBY, n_tests_axpby, XX, YY, A);
+  double spmv_time = test_op(TEST_SPMV, n_tests_spmv, XX, YY, A);
   printf("Sequential ops timing: \n");
-  printf("dot\ttime=%6.3fs GFLOPS=%6.2f\n", dot_time,  dot_gflop / dot_time);
-  printf("axpby\ttime=%6.3fs GFLOPS=%6.2f\n", axpby_time,  axpby_gflop / axpby_time);
-  printf("spmv\ttime=%6.3fs GFLOPS=%6.2f\n", spmv_time,  spmv_gflop / spmv_time);
+  printf(format, "dot", dot_time,  dot_gflop / dot_time, 1.0, ntr);
+  printf(format, "axpby", axpby_time,  axpby_gflop / axpby_time, 1.0, ntr);
+  printf(format, "spmv", spmv_time,  spmv_gflop / spmv_time, 1.0, ntr);
   
   //parallel mode  
   const int NTR = omp_get_num_procs();
-  for(int ntr = 2; ntr <= NTR; ntr *= 2) {
+  for(ntr = 2; ntr <= NTR; ntr *= 2) {
     printf("testing parallel ops for ntr=%d:\n", ntr);
     omp_set_num_threads(ntr);
-    double axpby_time_par = test_op(TEST_AXPBY, n_tests, XX, YY, A);
-    double spmv_time_par = test_op(TEST_SPMV, n_tests, XX, YY, A);
-    double dot_time_par = test_op(TEST_DOT, n_tests, XX, YY, A);
-    printf("dot\ttime=%6.3fs GFLOPS=%6.2f Speedup=%6.2fX\n", dot_time_par, dot_gflop/dot_time_par, dot_time/dot_time_par);
-    printf("axpby\ttime=%6.3fs GFLOPS=%6.2f Speedup=%6.2fX\n", axpby_time_par, axpby_gflop/axpby_time_par, axpby_time/axpby_time_par);
-    printf("spmv\ttime=%6.3fs GFLOPS=%6.2f Speedup=%6.2fX\n", spmv_time_par, spmv_gflop/spmv_time_par, spmv_time/spmv_time_par);
+    double dot_time_par = test_op(TEST_DOT, n_tests_dot, XX, YY, A);
+    double axpby_time_par = test_op(TEST_AXPBY, n_tests_axpby, XX, YY, A);
+    double spmv_time_par = test_op(TEST_SPMV, n_tests_spmv, XX, YY, A);
+    printf(format, "dot", dot_time_par, dot_gflop/dot_time_par, dot_time/dot_time_par, ntr);
+    printf(format, "axpby", axpby_time_par, axpby_gflop/axpby_time_par, axpby_time/axpby_time_par, ntr);
+    printf(format, "spmv", spmv_time_par, spmv_gflop/spmv_time_par, spmv_time/spmv_time_par, ntr);
   }
 
   csr_free(&A);
@@ -117,7 +125,8 @@ void test_solver(CSRMatrix A, Vector BB, Vector XX, double tol, int maxit, int n
 
 void test_solver_with_threads(int max_values[], int N, double tol, int maxit) {
   printf("\ntesting sequential solver:\n");
-  omp_set_num_threads(1);
+  int ntr = 1;
+  omp_set_num_threads(ntr);
   int n_tests = 10;
   CSRMatrix A = csr_matrix(max_values);
   Vector XX = make_vector(N);
@@ -129,18 +138,18 @@ void test_solver_with_threads(int max_values[], int N, double tol, int maxit) {
   double seq_solver_gflop = solver_results[0];
   double seq_solver_time = solver_results[1];
   printf("Sequential solver timing: \n");
-  printf("solver\ttime=%6.3fs GFLOPS=%6.2f\n", seq_solver_time,  seq_solver_gflop / seq_solver_time);
-
+  printf(format, "solver", seq_solver_time,  seq_solver_gflop / seq_solver_time, 1.0, ntr);
+  
   // parallel mode
   const int NTR = omp_get_num_procs();
-  for(int ntr = 2; ntr <= NTR; ntr *= 2) {
+  for(ntr = 2; ntr <= NTR; ntr *= 2) {
     printf("testing parallel solver for ntr=%d:\n", ntr);
     omp_set_num_threads(ntr);
     test_solver(A, BB, XX, tol, maxit, n_tests);
     double par_solver_gflop = solver_results[0];
     double par_solver_time = solver_results[1];
 
-    printf("solver\ttime=%6.3fs GFLOPS=%6.2f Speedup=%6.2fX\n", par_solver_time, par_solver_gflop/par_solver_time, seq_solver_time/par_solver_time);
+    printf(format, "solver", par_solver_time, par_solver_gflop/par_solver_time, seq_solver_time/par_solver_time, ntr);
   }
 }
 

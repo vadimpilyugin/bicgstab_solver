@@ -1,0 +1,33 @@
+Testing BiCGSTAB solver for a 3D grid domain
+nx=100 ny=100 nz=100 tol=0.000001 maxit=50 nt=1 qa=1
+
+N   = 1000000 (Nx=100, Ny=100, Nz=100
+Aij = sin(i+j+1), i != j
+Aii = 1.1*sum(fabs(Aij))
+Bi  = sin(i+1)
+tol = 1.0000000000e-06
+
+DOT_GFLOP=       20.000
+AXPBY_GFLOP=       30.000
+SPMV_GFLOP=        1.288
+testing sequential ops:
+Sequential ops timing: 
+dot	time=49.498s GFLOPS=  0.40 Speedup=  1.00X NTR=1
+axpby	time=84.804s GFLOPS=  0.35 Speedup=  1.00X NTR=1
+spmv	time=16.346s GFLOPS=  0.08 Speedup=  1.00X NTR=1
+testing parallel ops for ntr=2:
+dot	time=25.231s GFLOPS=  0.79 Speedup=  1.96X NTR=2
+axpby	time=42.969s GFLOPS=  0.70 Speedup=  1.97X NTR=2
+spmv	time= 8.251s GFLOPS=  0.16 Speedup=  1.98X NTR=2
+testing parallel ops for ntr=4:
+dot	time=13.540s GFLOPS=  1.48 Speedup=  3.66X NTR=4
+axpby	time=27.095s GFLOPS=  1.11 Speedup=  3.13X NTR=4
+spmv	time= 4.165s GFLOPS=  0.31 Speedup=  3.92X NTR=4
+
+testing sequential solver:
+Sequential solver timing: 
+solver	time=51.986s GFLOPS=  0.17 Speedup=  1.00X NTR=1
+testing parallel solver for ntr=2:
+solver	time=27.136s GFLOPS=  0.32 Speedup=  1.92X NTR=2
+testing parallel solver for ntr=4:
+solver	time=15.057s GFLOPS=  0.58 Speedup=  3.45X NTR=4
